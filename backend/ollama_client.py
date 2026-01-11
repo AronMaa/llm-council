@@ -1,3 +1,5 @@
+import requests
+
 def query_model(model, prompt_text, timeout=180):
     payload = {
         "model": model["name"] if isinstance(model, dict) else model,
