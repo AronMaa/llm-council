@@ -8,6 +8,6 @@ def query_model(model, prompt):
         "prompt": prompt,
         "stream": False
     }
-    r = requests.post(OLLAMA_URL, json=payload)
+    r = requests.post(OLLAMA_URL, json=payload, timeout=180)
     r.raise_for_status()
     return r.json()["response"]
