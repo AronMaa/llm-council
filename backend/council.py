@@ -159,7 +159,9 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     messages = [{"role": "user", "content": chairman_prompt}]
 
     # Query the chairman model
-    response = query_model(CHAIRMAN_MODEL, messages)
+    response = await query_models_parallel([CHAIRMAN_MODEL], messages)
+    if response:
+        response = response.get(CHAIRMAN_MODEL["name"])
 
     if response is None:
         # Fallback if chairman fails
@@ -256,15 +258,7 @@ def calculate_aggregate_rankings(
 
 
 async def generate_conversation_title(user_query: str) -> str:
-    """
-    Generate a short title for a conversation based on the first user message.
-
-    Args:
-        user_query: The first user message
-
-    Returns:
-        A short title (3-5 words)
-    """
+    """Generate a short title for a conversation based on the first user message."""
     title_prompt = f"""Generate a very short title (3-5 words maximum) that summarizes the following question.
 The title should be concise and descriptive. Do not use quotes or punctuation in the title.
 
@@ -274,24 +268,22 @@ Title:"""
 
     messages = [{"role": "user", "content": title_prompt}]
 
-    # Use a local model for title
-    response = query_model(CHAIRMAN_MODEL, messages, timeout=30.0)
-
+    # Utiliser query_models_parallel pour la compatibilité async
+    responses = await query_models_parallel([CHAIRMAN_MODEL], messages)
     
-    if response is None:
-        # Fallback to a generic title
-        return "New Conversation"
-
-    title = response.get('content', 'New Conversation').strip()
-
-    # Clean up the title - remove quotes, limit length
-    title = title.strip('"\'')
-
-    # Truncate if too long
-    if len(title) > 50:
-        title = title[:47] + "..."
-
-    return title
+    if responses and CHAIRMAN_MODEL["name"] in responses:
+        response = responses[CHAIRMAN_MODEL["name"]]
+        if response is not None:
+            title = response.get('content', 'New Conversation').strip()
+            # Clean up the title - remove quotes, limit length
+            title = title.strip('"\'')
+            # Truncate if too long
+            if len(title) > 50:
+                title = title[:47] + "..."
+            return title
+    
+    # Fallback to a generic title
+    return "New Conversation"
 
 
 async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
