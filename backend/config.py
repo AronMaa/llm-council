@@ -10,7 +10,7 @@ COUNCIL_MODELS = [
 ]
 
 # Chairman model - synthesizes final response
-CHAIRMAN_MODEL = {"name": "llama3", "url": "http://127.0.0.1:11434"},
+CHAIRMAN_MODEL = {"name": "llama3", "url": "http://127.0.0.1:11434"}
 
 # Data directory for conversation storage
 DATA_DIR = "data/conversations"
