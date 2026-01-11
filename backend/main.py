@@ -78,7 +78,6 @@ async def get_conversation(conversation_id: str):
         raise HTTPException(status_code=404, detail="Conversation not found")
     return conversation
 
-
 @app.post("/api/conversations/{conversation_id}/message")
 async def send_message(conversation_id: str, request: SendMessageRequest):
     """
@@ -114,12 +113,15 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
         stage3_result
     )
 
+    updated_conversation = storage.get_conversation(conversation_id)
+
     # Return the complete response with metadata
     return {
         "stage1": stage1_results,
         "stage2": stage2_results,
         "stage3": stage3_result,
-        "metadata": metadata
+        "metadata": metadata,
+        "conversation": updated_conversation
     }
 
 @app.post("/api/conversations/{conversation_id}/message/stream")
