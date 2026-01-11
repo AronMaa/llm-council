@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 
 OLLAMA_CHAT_URL = "http://127.0.0.1:11434/api/chat"
 
-def query_model(model, messages, timeout=180):
+def query_model(model, messages, timeout=1800):
     model_name = model["name"] if isinstance(model, dict) else model
     payload = {
         "model": model_name,
