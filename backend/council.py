@@ -159,7 +159,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     messages = [{"role": "user", "content": chairman_prompt}]
 
     # Query the chairman model
-    response = await query_model(CHAIRMAN_MODEL, messages)
+    response = query_model(CHAIRMAN_MODEL, messages)
 
     if response is None:
         # Fallback if chairman fails
