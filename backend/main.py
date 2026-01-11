@@ -122,7 +122,6 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
         "metadata": metadata
     }
 
-
 @app.post("/api/conversations/{conversation_id}/message/stream")
 async def send_message_stream(conversation_id: str, request: SendMessageRequest):
     """
@@ -150,12 +149,23 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             stage1_results = await stage1_collect_responses(request.content)
+            
+            # Check if stage1 succeeded
+            if not stage1_results:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'All models failed to respond in Stage 1'})}\n\n"
+                return
+                
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
             yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
             stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results)
-            aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+            
+            # Calculate aggregate rankings if we have results
+            aggregate_rankings = []
+            if stage2_results:
+                aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+                
             yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
 
             # Stage 3: Synthesize final answer
@@ -192,7 +202,6 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             "Connection": "keep-alive",
         }
     )
-
 
 if __name__ == "__main__":
     import uvicorn
