@@ -311,8 +311,16 @@ async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
     # Stage 2: Collect rankings
     stage2_results, label_to_model = await stage2_collect_rankings(user_query, stage1_results)
 
-    # Calculate aggregate rankings
-    aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+    # Initialize metadata
+    metadata = {
+        "label_to_model": label_to_model,
+        "aggregate_rankings": []
+    }
+    
+    # Only calculate aggregate rankings if we have stage2 results
+    if stage2_results:
+        aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+        metadata["aggregate_rankings"] = aggregate_rankings
 
     # Stage 3: Synthesize final answer
     stage3_result = await stage3_synthesize_final(
@@ -320,11 +328,5 @@ async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
         stage1_results,
         stage2_results
     )
-
-    # Prepare metadata
-    metadata = {
-        "label_to_model": label_to_model,
-        "aggregate_rankings": aggregate_rankings
-    }
 
     return stage1_results, stage2_results, stage3_result, metadata
