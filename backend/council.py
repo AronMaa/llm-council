@@ -1,7 +1,7 @@
 """3-stage LLM Council orchestration."""
 
 from typing import List, Dict, Any, Tuple
-from .ollama_client import query_model
+from .ollama_client import query_model, query_models_parallel
 from .config import COUNCIL_MODELS, CHAIRMAN_MODEL
 
 
