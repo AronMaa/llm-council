@@ -11,15 +11,10 @@ def query_model(model, messages, timeout=180):
         "stream": False
     }
 
-    loop = asyncio.get_event_loop()
-
-    def post_request():
+    try:
         r = requests.post(OLLAMA_CHAT_URL, json=payload, timeout=timeout)
         r.raise_for_status()
         return {"content": r.json().get("response", "")}
-
-    try:
-        return await loop.run_in_executor(None, post_request)
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print(f"Error querying model {model}: {e}")
         return None
