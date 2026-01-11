@@ -1,13 +1,14 @@
-import requests
-
-OLLAMA_URL = "http://localhost:11434/api/generate"
-
-def query_model(model, prompt, timeout=180):
+def query_model(model, prompt_text, timeout=180):
     payload = {
-        "model": model,
-        "prompt": prompt,
+        "model": model["name"] if isinstance(model, dict) else model,
+        "prompt": prompt_text,
         "stream": False
     }
-    r = requests.post(OLLAMA_URL, json=payload, timeout=timeout)
-    r.raise_for_status()
-    return r.json()["response"]
+
+    try:
+        r = requests.post("http://localhost:11434/api/generate", json=payload, timeout=timeout)
+        r.raise_for_status()
+        return {"content": r.json().get("response", "")}
+    except Exception as e:
+        print(f"Error querying model {model}: {e}")
+        return None
