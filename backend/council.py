@@ -275,7 +275,7 @@ Title:"""
     messages = [{"role": "user", "content": title_prompt}]
 
     # Use a local model for title
-    response = await query_model(CHAIRMAN_MODEL, messages, timeout=30.0)
+    response = query_model(CHAIRMAN_MODEL, messages, timeout=30.0)
 
     
     if response is None:
